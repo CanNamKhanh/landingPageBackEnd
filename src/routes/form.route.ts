@@ -11,10 +11,6 @@ router.get("/", (req: Request, res: Response) => {
   });
 });
 
-router.options("/submit-form", (req, res) => {
-  res.sendStatus(200);
-});
-
 router.post("/submit-form", async (req: Request, res: Response) => {
   console.log("BODY:", req.body);
   console.log("HAS CREDS:", !!process.env.GOOGLE_CREDENTIALS);

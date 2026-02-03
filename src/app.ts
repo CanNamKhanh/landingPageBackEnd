@@ -4,22 +4,23 @@ import formRoute from "./routes/form.route";
 
 const app = express();
 
-const corsOptions = {
-  origin: ["http://localhost:5173", "https://rosie-boost.vercel.app"],
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-};
+app.use(
+  cors({
+    origin: "https://rosie-boost.vercel.app",
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+  }),
+);
 
-app.use(cors(corsOptions));
-
-app.options("*", cors(corsOptions));
+app.options("*", (req, res) => {
+  res.sendStatus(204);
+});
 
 app.use(express.json());
-
 app.use("/api", formRoute);
 
 app.get("/", (req, res) => {
-  res.status(200).send("OK");
+  res.send("OK");
 });
 
 export default app;
