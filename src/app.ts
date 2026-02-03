@@ -14,8 +14,9 @@ app.get("/", (req, res) => {
   res.send("OK");
 });
 
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
-});
+if (process.env.NODE_SERVER_MODE !== "production") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
 
 module.exports = app;
