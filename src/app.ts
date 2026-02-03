@@ -5,7 +5,16 @@ import formRoute from "./routes/form.route";
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://rosie-boost.vercel.app/"],
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type"],
+  }),
+);
+
+app.options("*", cors());
+
 app.use(express.json());
 
 app.use("/api", formRoute);
