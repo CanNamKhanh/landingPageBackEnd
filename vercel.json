@@ -8,8 +8,14 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "app.ts"
+      "src": "/api/(.*)",
+      "dest": "/src/app.ts",
+      "methods": ["GET", "POST", "OPTIONS"],
+      "headers": {
+        "Access-Control-Allow-Origin": "https://rosie-boost.vercel.app",
+        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+      }
     }
   ]
 }
