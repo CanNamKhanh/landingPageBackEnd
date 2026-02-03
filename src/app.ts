@@ -1,29 +1,25 @@
-// server.ts
 import express from "express";
 import cors from "cors";
 import formRoute from "./routes/form.route";
 
 const app = express();
 
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "https://rosie-boost.vercel.app"],
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
-  }),
-);
+const corsOptions = {
+  origin: ["http://localhost:5173", "https://rosie-boost.vercel.app"],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+};
+
+app.use(cors(corsOptions));
+
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 
 app.use("/api", formRoute);
 
 app.get("/", (req, res) => {
-  res.send("OK");
+  res.status(200).send("OK");
 });
-
-if (process.env.NODE_SERVER_MODE !== "production") {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
 
 export default app;
