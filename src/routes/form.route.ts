@@ -10,7 +10,7 @@ router.get("/", (req: Request, res: Response) => {
   });
 });
 
-router.post("/submitForm", async (req: Request, res: Response) => {
+router.post("/submit-form", async (req: Request, res: Response) => {
   try {
     console.log("ENV CHECK:", {
       spreadsheetId: process.env.SPREADSHEET_ID,
