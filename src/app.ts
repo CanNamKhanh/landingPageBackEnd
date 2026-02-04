@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import formRoute from "./routes/form.route";
@@ -11,7 +12,6 @@ app.use(
     allowedHeaders: ["Content-Type"],
   }),
 );
-
 app.use(express.json());
 app.use("/api", formRoute);
 

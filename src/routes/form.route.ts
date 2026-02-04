@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express, { Request, Response } from "express";
 import { sheets } from "../libs/googleSheet";
 
@@ -9,8 +10,13 @@ router.get("/", (req: Request, res: Response) => {
   });
 });
 
-router.post("/submit-form", async (req: Request, res: Response) => {
+router.post("/submitForm", async (req: Request, res: Response) => {
   try {
+    console.log("ENV CHECK:", {
+      spreadsheetId: process.env.SPREADSHEET_ID,
+      hasCredentials: !!process.env.GOOGLE_CREDENTIALS,
+    });
+    console.log("hello");
     const {
       name,
       email,
