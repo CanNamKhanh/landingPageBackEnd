@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
-import { sheets } from "../libs/googleSheet";
+import { sheets } from "googleapis/build/src/apis/sheets";
+import { getSheets } from "../libs/googleSheet";
 
 const router = express.Router();
 
@@ -10,6 +11,8 @@ router.get("/", (req: Request, res: Response) => {
 });
 
 router.post("/submit-form", async (req: Request, res: Response) => {
+  const sheets = getSheets();
+
   try {
     const {
       name,
