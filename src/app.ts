@@ -3,7 +3,6 @@ import cors from "cors";
 import formRoute from "./routes/form.route";
 
 const app = express();
-const port = 3000;
 app.use(
   cors({
     origin: "https://rosie-boost.vercel.app",
@@ -22,9 +21,5 @@ app.get("/", (req, res) => {
 // app.options("/*", (req, res) => {
 //   res.sendStatus(204);
 // });
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
 
 export default app;

@@ -14,7 +14,9 @@ router.get("/", (req, res) => {
     });
 });
 router.post("/submit-form", async (req, res) => {
-    console.log(req.body);
+    console.log("BODY:", req.body);
+    console.log("HAS CREDS:", !!process.env.GOOGLE_CREDENTIALS);
+    console.log("SHEET ID:", process.env.SPREADSHEET_ID);
     try {
         const { name, email, contactMethod, contactInfo, game, paymentMethod, boostingRequirements, } = req.body;
         await googleSheet_1.sheets.spreadsheets.values.append({
