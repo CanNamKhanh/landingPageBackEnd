@@ -12,9 +12,9 @@ router.get("/", (req: Request, res: Response) => {
 });
 
 router.post("/submit-form", async (req: Request, res: Response) => {
-  console.log("BODY:", req.body);
-  console.log("HAS CREDS:", !!process.env.GOOGLE_CREDENTIALS);
-  console.log("SHEET ID:", process.env.SPREADSHEET_ID);
+  // console.log("BODY:", req.body);
+  // console.log("HAS CREDS:", !!process.env.GOOGLE_CREDENTIALS);
+  // console.log("SHEET ID:", process.env.SPREADSHEET_ID);
 
   try {
     const {

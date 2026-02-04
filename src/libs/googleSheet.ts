@@ -2,17 +2,16 @@
 import { google } from "googleapis";
 import path from "path";
 
-// const auth = new google.auth.GoogleAuth({
-//   keyFile: path.resolve("service-account.json"),
-//   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-// });
+const rawCreds = process.env.GOOGLE_CREDENTIALS;
 
-// export const sheets = google.sheets({
-//   version: "v4",
-//   auth,
-// });
+if (!rawCreds) {
+  throw new Error("Missing GOOGLE_CREDENTIALS");
+}
 
-const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS || "{}");
+const credentials = JSON.parse(rawCreds);
+
+// FIX PRIVATE KEY
+credentials.private_key = credentials.private_key.replace(/\\n/g, "\n");
 
 const auth = new google.auth.GoogleAuth({
   credentials,
