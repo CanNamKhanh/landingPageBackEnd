@@ -1,5 +1,3 @@
-// routes/form.route.ts
-import "dotenv/config";
 import express, { Request, Response } from "express";
 import { sheets } from "../libs/googleSheet";
 
@@ -12,10 +10,6 @@ router.get("/", (req: Request, res: Response) => {
 });
 
 router.post("/submit-form", async (req: Request, res: Response) => {
-  // console.log("BODY:", req.body);
-  // console.log("HAS CREDS:", !!process.env.GOOGLE_CREDENTIALS);
-  // console.log("SHEET ID:", process.env.SPREADSHEET_ID);
-
   try {
     const {
       name,
@@ -48,9 +42,12 @@ router.post("/submit-form", async (req: Request, res: Response) => {
     });
 
     res.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false });
+  } catch (err: any) {
+    console.error("❌ SUBMIT FORM ERROR:", err.message);
+    res.status(500).json({
+      success: false,
+      error: err.message,
+    });
   }
 });
 

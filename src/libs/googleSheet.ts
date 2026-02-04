@@ -1,24 +1,29 @@
-// libs/googleSheet.ts
 import { google } from "googleapis";
-import path from "path";
 
-const rawCreds = process.env.GOOGLE_CREDENTIALS;
-
-if (!rawCreds) {
-  throw new Error("Missing GOOGLE_CREDENTIALS");
+if (!process.env.GOOGLE_CREDENTIALS) {
+  throw new Error("❌ Missing GOOGLE_CREDENTIALS env");
 }
 
-const credentials = JSON.parse(rawCreds);
+if (!process.env.SPREADSHEET_ID) {
+  throw new Error("❌ Missing SPREADSHEET_ID env");
+}
 
-// FIX PRIVATE KEY
+// Parse credentials từ ENV
+const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+
+// BẮT BUỘC: fix private_key cho Vercel
 credentials.private_key = credentials.private_key.replace(/\\n/g, "\n");
 
+// Google Auth
 const auth = new google.auth.GoogleAuth({
   credentials,
   scopes: ["https://www.googleapis.com/auth/spreadsheets"],
 });
 
+// Sheets instance
 export const sheets = google.sheets({
   version: "v4",
   auth,
 });
+
+export const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
