@@ -7,7 +7,6 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const form_route_1 = __importDefault(require("./routes/form.route"));
 const app = (0, express_1.default)();
-const port = 3000;
 app.use((0, cors_1.default)({
     origin: "https://rosie-boost.vercel.app",
     methods: ["GET", "POST", "OPTIONS"],
@@ -21,8 +20,5 @@ app.get("/", (req, res) => {
 // app.options("/*", (req, res) => {
 //   res.sendStatus(204);
 // });
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-});
 exports.default = app;
 //# sourceMappingURL=app.js.map

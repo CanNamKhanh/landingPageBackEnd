@@ -3,8 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// routes/form.route.ts
-require("dotenv/config");
 const express_1 = __importDefault(require("express"));
 const googleSheet_1 = require("../libs/googleSheet");
 const router = express_1.default.Router();
@@ -14,9 +12,6 @@ router.get("/", (req, res) => {
     });
 });
 router.post("/submit-form", async (req, res) => {
-    console.log("BODY:", req.body);
-    console.log("HAS CREDS:", !!process.env.GOOGLE_CREDENTIALS);
-    console.log("SHEET ID:", process.env.SPREADSHEET_ID);
     try {
         const { name, email, contactMethod, contactInfo, game, paymentMethod, boostingRequirements, } = req.body;
         await googleSheet_1.sheets.spreadsheets.values.append({
@@ -41,8 +36,11 @@ router.post("/submit-form", async (req, res) => {
         res.json({ success: true });
     }
     catch (err) {
-        console.error(err);
-        res.status(500).json({ success: false });
+        console.error("❌ SUBMIT FORM ERROR:", err.message);
+        res.status(500).json({
+            success: false,
+            error: err.message,
+        });
     }
 });
 exports.default = router;

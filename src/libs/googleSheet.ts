@@ -1,17 +1,15 @@
 import { google } from "googleapis";
 
 if (!process.env.GOOGLE_CREDENTIALS) {
-  throw new Error("❌ Missing GOOGLE_CREDENTIALS env");
+  throw new Error("Missing GOOGLE_CREDENTIALS env");
 }
 
 if (!process.env.SPREADSHEET_ID) {
-  throw new Error("❌ Missing SPREADSHEET_ID env");
+  throw new Error("Missing SPREADSHEET_ID env");
 }
 
-// Parse credentials từ ENV
 const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
 
-// BẮT BUỘC: fix private_key cho Vercel
 credentials.private_key = credentials.private_key.replace(/\\n/g, "\n");
 
 // Google Auth

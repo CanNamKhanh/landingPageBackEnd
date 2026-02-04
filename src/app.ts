@@ -18,8 +18,6 @@ app.get("/", (req, res) => {
   res.send("OK");
 });
 
-// app.options("/*", (req, res) => {
-//   res.sendStatus(204);
-// });
+app.options("*", cors());
 
 export default app;
