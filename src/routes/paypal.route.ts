@@ -53,7 +53,7 @@ router.post("/create-invoice", async (req: Request, res: Response) => {
       `${PAYPAL_BASE}/v2/invoicing/invoices`,
       {
         detail: {
-          invoice_number: `INV-${Date.now()}`,
+          invoice_number: `INV-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
           currency_code: "USD",
           note: note ?? "Thank you for choosing RosieBoost!",
           payment_term: { term_type: "DUE_ON_RECEIPT" },
@@ -94,15 +94,19 @@ router.post("/create-invoice", async (req: Request, res: Response) => {
       { headers, timeout: 15_000 },
     );
 
-    // ✅ FIX: dùng .id thay vì parse .href
-    const invoiceId: string = invoiceRes.data.id;
+    // invoiceRes.data = { rel: 'self', href: '…/invoices/INV2-xxx', method: 'GET' }
+    console.log("Invoice response data:", JSON.stringify(invoiceRes.data));
+
+    const invoiceId: string = invoiceRes.data.href?.split("/").pop()!;
     if (!invoiceId) {
-      console.error("PayPal did not return invoice id:", invoiceRes.data);
-      res.status(500).json({ error: "PayPal did not return invoice id." });
+      console.error("Could not parse invoice id from:", invoiceRes.data);
+      res
+        .status(500)
+        .json({ error: "Could not parse invoice id from PayPal response." });
       return;
     }
 
-    console.log("Invoice created:", invoiceId);
+    console.log("Invoice ID:", invoiceId);
 
     // 2. Gửi invoice → PayPal tự gửi email cho khách
     await axios.post(
@@ -110,6 +114,8 @@ router.post("/create-invoice", async (req: Request, res: Response) => {
       { send_to_recipient: true },
       { headers, timeout: 15_000 },
     );
+
+    console.log("Invoice sent to recipient:", customerEmail);
 
     // 3. Lấy link thanh toán trả về FE
     const detailRes = await axios.get(
@@ -123,10 +129,15 @@ router.post("/create-invoice", async (req: Request, res: Response) => {
         ?.href ??
       "";
 
+    console.log("Pay link:", payLink);
+
     res.json({ success: true, invoiceId, payLink });
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
-      console.error("PayPal error:", err.response?.data ?? err.message);
+      console.error(
+        "PayPal error:",
+        JSON.stringify(err.response?.data ?? err.message),
+      );
       res.status(502).json({ error: err.response?.data ?? "PayPal API error" });
     } else {
       console.error("Unexpected error:", err);
