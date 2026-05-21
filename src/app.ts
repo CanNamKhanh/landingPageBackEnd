@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import formRoute from "./routes/form.route";
+import paypalRouter from "./routes/paypal.route";
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(
 );
 app.use(express.json());
 app.use("/api", formRoute);
+app.use("/paypal", paypalRouter);
 
 app.get("/", (_req, res) => {
   res.send("OK");
