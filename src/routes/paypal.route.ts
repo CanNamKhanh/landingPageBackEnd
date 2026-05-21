@@ -20,6 +20,7 @@ async function getAccessToken(): Promise<string> {
         password: process.env.PAYPAL_CLIENT_SECRET!,
       },
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      timeout: 10_000,
     },
   );
   return res.data.access_token;
@@ -27,16 +28,16 @@ async function getAccessToken(): Promise<string> {
 
 // ── POST /paypal/create-invoice ───────────────────────────────────────────────
 router.post("/create-invoice", async (req: Request, res: Response) => {
-  const {
-    customerName,
-    customerEmail,
-    serviceLabel, // ví dụ: "Tft Rank Boost · AP · Iron 1 → Gold 4"
-    amount, // số tiền USD (number)
-    note, // tuỳ chọn
-  } = req.body;
+  const { customerName, customerEmail, serviceLabel, amount, note } = req.body;
 
   if (!customerName || !customerEmail || !amount) {
     res.status(400).json({ error: "Missing required fields." });
+    return;
+  }
+
+  const amountNum = Number(amount);
+  if (isNaN(amountNum) || amountNum <= 0) {
+    res.status(400).json({ error: "Invalid amount." });
     return;
   }
 
@@ -58,7 +59,6 @@ router.post("/create-invoice", async (req: Request, res: Response) => {
           payment_term: { term_type: "DUE_ON_RECEIPT" },
         },
         invoicer: {
-          // Thông tin shop của bạn — điền vào .env
           name: { given_name: process.env.SHOP_NAME ?? "RosieBoost" },
           email_address: process.env.PAYPAL_INVOICER_EMAIL!,
         },
@@ -73,11 +73,11 @@ router.post("/create-invoice", async (req: Request, res: Response) => {
         items: [
           {
             name: serviceLabel ?? "Boosting Service",
-            description: serviceLabel,
+            description: serviceLabel ?? "Boosting Service",
             quantity: "1",
             unit_amount: {
               currency_code: "USD",
-              value: Number(amount).toFixed(2),
+              value: amountNum.toFixed(2),
             },
             unit_of_measure: "QUANTITY",
           },
@@ -86,27 +86,35 @@ router.post("/create-invoice", async (req: Request, res: Response) => {
           breakdown: {
             item_total: {
               currency_code: "USD",
-              value: Number(amount).toFixed(2),
+              value: amountNum.toFixed(2),
             },
           },
         },
       },
-      { headers },
+      { headers, timeout: 15_000 },
     );
 
-    const invoiceId: string = invoiceRes.data.href.split("/").pop()!;
+    // ✅ FIX: dùng .id thay vì parse .href
+    const invoiceId: string = invoiceRes.data.id;
+    if (!invoiceId) {
+      console.error("PayPal did not return invoice id:", invoiceRes.data);
+      res.status(500).json({ error: "PayPal did not return invoice id." });
+      return;
+    }
+
+    console.log("Invoice created:", invoiceId);
 
     // 2. Gửi invoice → PayPal tự gửi email cho khách
     await axios.post(
       `${PAYPAL_BASE}/v2/invoicing/invoices/${invoiceId}/send`,
       { send_to_recipient: true },
-      { headers },
+      { headers, timeout: 15_000 },
     );
 
-    // 3. Lấy link thanh toán trả về FE (tuỳ chọn hiển thị)
+    // 3. Lấy link thanh toán trả về FE
     const detailRes = await axios.get(
       `${PAYPAL_BASE}/v2/invoicing/invoices/${invoiceId}`,
-      { headers },
+      { headers, timeout: 10_000 },
     );
 
     const payLink: string =
@@ -119,8 +127,9 @@ router.post("/create-invoice", async (req: Request, res: Response) => {
   } catch (err: unknown) {
     if (axios.isAxiosError(err)) {
       console.error("PayPal error:", err.response?.data ?? err.message);
-      res.status(500).json({ error: err.response?.data ?? "PayPal API error" });
+      res.status(502).json({ error: err.response?.data ?? "PayPal API error" });
     } else {
+      console.error("Unexpected error:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   }
