@@ -234,7 +234,7 @@ router.post("/submit-form", async (req: Request, res: Response) => {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.SPREADSHEET_ID!,
-      range: "Orders!A:G",
+      range: "Trang tính1!A:G",
       valueInputOption: "USER_ENTERED",
       requestBody: { values: [row] },
     });
