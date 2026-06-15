@@ -15,7 +15,7 @@ interface BasePayload {
   customerEmail: string;
   game: string;
   service: string;
-  totalPrice: number;
+  totalPrice: number | string;
 }
 
 // Valorant – Rank Boosting
@@ -188,6 +188,13 @@ function formatDetails(payload: Payload): string {
   return "-";
 }
 
+// ─── Price Formatter ──────────────────────────────────────────────────────────
+
+function formatPrice(totalPrice: number | string): string {
+  if (typeof totalPrice === "string") return totalPrice;
+  return `$${totalPrice.toFixed(2)}`;
+}
+
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 router.post("/submit-form", async (req: Request, res: Response) => {
@@ -227,7 +234,7 @@ router.post("/submit-form", async (req: Request, res: Response) => {
       game,
       service,
       details,
-      `$${Number(totalPrice).toFixed(2)}`,
+      formatPrice(totalPrice),
       customerName,
       customerEmail,
     ];
