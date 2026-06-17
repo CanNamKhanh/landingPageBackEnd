@@ -2,3 +2,4 @@ service-account.json
 .env
 node_modules
 service-account1.json
+/src/generated/prisma

@@ -1,0 +1,19 @@
+enum MessageSenderType {
+    USER
+    ADMIN
+    AI
+}
+
+model Message {
+    id             String            @id @default(cuid())
+    conversationId String            @map("conversation_id")
+    userId         String?           @map("user_id")
+    senderType     MessageSenderType @map("sender_type")
+    content        String?
+    createdAt      DateTime          @default(now()) @map("created_at")
+
+    conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+    user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+    @@map("messages")
+}
