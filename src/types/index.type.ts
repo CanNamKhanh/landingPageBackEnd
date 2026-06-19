@@ -40,3 +40,29 @@ export interface PaginatedMessages {
   nextCursor: string | null;
   hasMore: boolean;
 }
+
+// ─── Admin types ────────────────────────────────────────────────────────────────
+// NOTE: passwordHash is intentionally NEVER included in any admin response type.
+// Returning password hashes (even hashed) is unnecessary and risky if logs/responses leak.
+
+export interface AdminUserDetail {
+  id: string;
+  email: string;
+  username: string;
+  role: Role;
+  createdAt: Date;
+  updatedAt: Date;
+  conversationCount: number;
+  messageCount: number;
+}
+
+export interface AdminUserConversations {
+  user: {
+    id: string;
+    email: string;
+    username: string;
+    role: Role;
+    createdAt: Date;
+  };
+  conversations: ConversationWithMessages[];
+}

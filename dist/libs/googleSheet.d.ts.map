@@ -1,1 +1,1 @@
-{"version":3,"file":"googleSheet.d.ts","sourceRoot":"","sources":["../../src/libs/googleSheet.ts"],"names":[],"mappings":"AAuBA,eAAO,MAAM,MAAM,uCAGjB,CAAC;AAEH,eAAO,MAAM,cAAc,QAA6B,CAAC"}
+{"version":3,"file":"googleSheet.d.ts","sourceRoot":"","sources":["../../src/libs/googleSheet.ts"],"names":[],"mappings":"AAAA,OAAO,eAAe,CAAC;AAUvB,eAAO,MAAM,MAAM,uCAGjB,CAAC"}
