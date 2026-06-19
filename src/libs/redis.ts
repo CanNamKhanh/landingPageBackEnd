@@ -1,35 +1,25 @@
-import { createClient } from "redis";
+import { Redis } from "@upstash/redis";
 
-export const redisClient = createClient({
-  url: process.env.REDIS_URL ?? "redis://localhost:6379",
+export const redisClient = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-redisClient.on("error", (err) => {
-  console.error("[Redis] Connection error:", err);
-});
-
-redisClient.on("connect", () => {
-  console.log("[Redis] Connected successfully");
-});
-
+// Không cần connectRedis() nữa vì REST API không cần "connect" trước
 export const connectRedis = async (): Promise<void> => {
-  await redisClient.connect();
+  console.log(
+    "[Redis] Using Upstash REST API — no persistent connection needed",
+  );
 };
-
-// ─── Prefix keys ──────────────────────────────────────────────────────────────
 
 const BLACKLIST_PREFIX = "blacklist:";
 const RESET_TOKEN_PREFIX = "reset_token:";
-
-// ─── Blacklist helpers ────────────────────────────────────────────────────────
 
 export const blacklistToken = async (
   token: string,
   ttlSeconds: number,
 ): Promise<void> => {
-  await redisClient.set(`${BLACKLIST_PREFIX}${token}`, "1", {
-    EX: ttlSeconds,
-  });
+  await redisClient.set(`${BLACKLIST_PREFIX}${token}`, "1", { ex: ttlSeconds });
 };
 
 export const isTokenBlacklisted = async (token: string): Promise<boolean> => {
@@ -37,15 +27,13 @@ export const isTokenBlacklisted = async (token: string): Promise<boolean> => {
   return result !== null;
 };
 
-// ─── Reset token helpers ──────────────────────────────────────────────────────
-
 export const saveResetToken = async (
   email: string,
   token: string,
   ttlSeconds: number,
 ): Promise<void> => {
   await redisClient.set(`${RESET_TOKEN_PREFIX}${token}`, email, {
-    EX: ttlSeconds,
+    ex: ttlSeconds,
   });
 };
 
