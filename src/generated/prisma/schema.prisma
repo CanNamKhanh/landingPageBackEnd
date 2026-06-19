@@ -1,0 +1,73 @@
+enum ConversationType {
+  AI
+  ADMIN
+}
+
+model Conversation {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  type      ConversationType
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@unique([userId, type])
+  @@map("conversations")
+}
+
+enum MessageSenderType {
+  USER
+  ADMIN
+  AI
+}
+
+model Message {
+  id             String            @id @default(cuid())
+  conversationId String            @map("conversation_id")
+  userId         String?           @map("user_id")
+  senderType     MessageSenderType @map("sender_type")
+  content        String?
+  imageUrl       String?           @map("image_url")
+  createdAt      DateTime          @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("messages")
+}
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  conversations Conversation[]
+  messages      Message[]
+
+  @@map("users")
+}
