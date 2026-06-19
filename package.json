@@ -7,7 +7,7 @@
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --exec ts-node -r dotenv/config src/app.ts",
-    "build": "tsc && npx prisma generate && npx prisma generate --schema=./prisma/schema.prisma"
+    "build": "node -e \"const fs = require('fs'); const schema = fs.readFileSync('prisma/schema.prisma', 'utf8'); fs.writeFileSync('prisma/schema.prisma', schema.replace('../../generated/prisma', './dist/generated/prisma'));\" && npx prisma generate && tsc"
   },
   "keywords": [],
   "author": "",
