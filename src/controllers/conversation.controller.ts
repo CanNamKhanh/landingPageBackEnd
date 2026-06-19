@@ -5,7 +5,7 @@ import {
   SendMessageInput,
   GetMessagesInput,
 } from "../schemas/conversation.schema";
-import { ConversationType } from "../generated/prisma";
+import { ConversationType } from "@prisma/client";
 
 // ─── GET MY CONVERSATIONS (both AI + ADMIN) ───────────────────────────────────
 

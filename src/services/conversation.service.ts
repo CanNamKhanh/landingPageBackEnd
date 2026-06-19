@@ -1,8 +1,4 @@
-import {
-  ConversationType,
-  MessageSenderType,
-  Prisma,
-} from "../generated/prisma";
+import { ConversationType, MessageSenderType, Prisma } from "@prisma/client";
 import { prisma } from "../libs/prisma";
 import {
   SendMessageInput,

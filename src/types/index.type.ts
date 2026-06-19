@@ -1,6 +1,6 @@
 // ─── Auth types ────────────────────────────────────────────────────────────────
 
-import { ConversationType, MessageSenderType, Role } from "../generated/prisma";
+import { ConversationType, MessageSenderType, Role } from "@prisma/client";
 
 export interface TokenPair {
   accessToken: string;

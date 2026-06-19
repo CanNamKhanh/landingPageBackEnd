@@ -101,7 +101,7 @@ export type ApiResponse<T> = ApiSuccess<T> | ApiError;
 // ─── Request Extensions ───────────────────────────────────────────────────────
 
 import { Request } from "express";
-import { ConversationType, MessageSenderType, Role } from "../generated/prisma";
+import { ConversationType, MessageSenderType, Role } from "@prisma/client";
 
 export interface AuthenticatedRequest extends Request {
   user: JwtPayload;

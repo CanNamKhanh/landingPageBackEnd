@@ -1,5 +1,9 @@
 import "dotenv/config";
-import { PrismaClient } from "../generated/prisma";
-declare const prisma: PrismaClient<import("../generated/prisma").Prisma.PrismaClientOptions, never, import("../generated/prisma/runtime/client").DefaultArgs>;
+import { PrismaClient } from "@prisma/client";
+declare const prisma: PrismaClient<
+  import("@prisma/client").Prisma.PrismaClientOptions,
+  never,
+  import("@prisma/client/runtime/client").DefaultArgs
+>;
 export { prisma };
 //# sourceMappingURL=prisma.d.ts.map

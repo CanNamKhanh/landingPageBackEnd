@@ -1,4 +1,4 @@
-import { Prisma } from "../generated/prisma";
+import { Prisma } from "@prisma/client";
 import { prisma } from "../libs/prisma";
 import { GetAllUsersInput } from "../schemas/admin.schema";
 import {

@@ -1,7 +1,7 @@
 import { Response, NextFunction } from "express";
 import { AuthRequest } from "./auth.middleware";
 import { prisma } from "../libs/prisma";
-import { Role } from "../generated/prisma";
+import { Role } from "@prisma/client";
 
 // ─── requireAdmin ─────────────────────────────────────────────────────────────
 // Must be placed AFTER the authenticate middleware.
