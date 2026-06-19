@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "sed -i 's|../../generated/prisma|../dist/generated/prisma|g' src/prisma/schema.prisma && npx prisma generate --schema=src/prisma/schema.prisma && tsc",
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec ts-node -r dotenv/config src/app.ts",
-    "build": "sed -i 's|../../generated/prisma|../dist/generated/prisma|g' prisma/schema.prisma && npx prisma generate && tsc"
+    "dev": "nodemon --exec ts-node -r dotenv/config src/app.ts"
   },
   "keywords": [],
   "author": "",
