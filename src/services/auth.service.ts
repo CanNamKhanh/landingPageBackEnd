@@ -95,7 +95,7 @@ export const authService = {
 
     // Store refresh token in Redis
     await redisClient.set(`refresh_token:${user.id}:${refreshToken}`, "valid", {
-      EX: REFRESH_TOKEN_TTL,
+      ex: REFRESH_TOKEN_TTL,
     });
 
     return { accessToken, refreshToken };
@@ -110,7 +110,7 @@ export const authService = {
   ): Promise<void> {
     // Blacklist the access token
     await redisClient.set(`blacklist:${accessToken}`, "revoked", {
-      EX: ACCESS_TOKEN_TTL,
+      ex: ACCESS_TOKEN_TTL,
     });
 
     // Remove the refresh token
@@ -149,7 +149,7 @@ export const authService = {
     await redisClient.set(
       `refresh_token:${decoded.userId}:${newRefreshToken}`,
       "valid",
-      { EX: REFRESH_TOKEN_TTL },
+      { ex: REFRESH_TOKEN_TTL },
     );
 
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
