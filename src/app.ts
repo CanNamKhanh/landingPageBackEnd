@@ -15,6 +15,7 @@ const app = express();
 const httpServer = http.createServer(app);
 
 const RAW_CORS_ORIGIN = process.env.CORS_ORIGIN ?? "";
+//bug logs
 console.log("=== CORS DEBUG ===");
 console.log("RAW CORS_ORIGIN env:", JSON.stringify(RAW_CORS_ORIGIN));
 
