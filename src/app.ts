@@ -14,25 +14,41 @@ const PORT: number = Number(process.env.PORT) || 4000;
 const app = express();
 const httpServer = http.createServer(app);
 
-const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN ?? "")
-  .split(",")
-  .map((origin) => origin.trim().replace(/\/$/, "")) // ← Xóa trailing slash
+const RAW_CORS_ORIGIN = process.env.CORS_ORIGIN ?? "";
+console.log("=== CORS DEBUG ===");
+console.log("RAW CORS_ORIGIN env:", JSON.stringify(RAW_CORS_ORIGIN));
+
+const ALLOWED_ORIGINS = RAW_CORS_ORIGIN.split(",")
+  .map((origin) => origin.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
-console.log("CORS allowed origins:", ALLOWED_ORIGINS);
+console.log("ALLOWED_ORIGINS parsed:", ALLOWED_ORIGINS);
+console.log("==================");
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    // Cho phép request không có origin (mobile app, Postman, server-to-server)
-    if (!origin) return callback(null, true);
+    console.log(`[CORS] Incoming origin: ${JSON.stringify(origin)}`);
+    console.log(`[CORS] Allowed list: ${JSON.stringify(ALLOWED_ORIGINS)}`);
 
-    const normalizedOrigin = origin.replace(/\/$/, ""); // ← Normalize origin từ browser
-
-    if (ALLOWED_ORIGINS.includes(normalizedOrigin)) {
+    if (!origin) {
+      console.log("[CORS] No origin → ALLOWED (Postman/server)");
       return callback(null, true);
     }
 
-    console.warn(`CORS blocked: ${origin}`);
+    const normalizedOrigin = origin.replace(/\/$/, "");
+    console.log(
+      `[CORS] Normalized origin: ${JSON.stringify(normalizedOrigin)}`,
+    );
+
+    const isAllowed = ALLOWED_ORIGINS.includes(normalizedOrigin);
+    console.log(`[CORS] Match result: ${isAllowed}`);
+
+    if (isAllowed) {
+      console.log("[CORS] ✅ ALLOWED");
+      return callback(null, true);
+    }
+
+    console.log("[CORS] ❌ BLOCKED");
     return callback(new Error(`CORS: origin '${origin}' not allowed`));
   },
   methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
@@ -40,7 +56,7 @@ const corsOptions: cors.CorsOptions = {
   credentials: true,
 };
 
-// Xử lý preflight OPTIONS trước tất cả routes
+// Xử lý preflight OPTIONS
 app.options("*", cors(corsOptions));
 app.use(cors(corsOptions));
 
