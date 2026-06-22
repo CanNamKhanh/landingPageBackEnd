@@ -12,29 +12,37 @@ import { connectRedis } from "./libs/redis";
 
 const PORT: number = Number(process.env.PORT) || 4000;
 const app = express();
-
 const httpServer = http.createServer(app);
 
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN ?? "")
   .split(",")
-  .map((origin) => origin.trim())
+  .map((origin) => origin.trim().replace(/\/$/, "")) // ← Xóa trailing slash
   .filter(Boolean);
 
-console.log("CORS:", ALLOWED_ORIGINS);
+console.log("CORS allowed origins:", ALLOWED_ORIGINS);
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(null, false);
-    },
-    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  }),
-);
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    // Cho phép request không có origin (mobile app, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+
+    const normalizedOrigin = origin.replace(/\/$/, ""); // ← Normalize origin từ browser
+
+    if (ALLOWED_ORIGINS.includes(normalizedOrigin)) {
+      return callback(null, true);
+    }
+
+    console.warn(`CORS blocked: ${origin}`);
+    return callback(new Error(`CORS: origin '${origin}' not allowed`));
+  },
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+// Xử lý preflight OPTIONS trước tất cả routes
+app.options("*", cors(corsOptions));
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
