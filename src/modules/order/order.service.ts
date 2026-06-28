@@ -12,7 +12,7 @@ import {
 } from "./order.requests.schema";
 import { parseOrderDetails, ServiceTypeKey } from "./orderDetails.schema";
 import { prisma } from "../../libs/prisma";
-import { Prisma } from "@prisma/client";
+import { OrderStatus, Prisma, Role } from "@prisma/client";
 
 const log = logger.scope("OrderService");
 
@@ -324,19 +324,24 @@ export async function updateOrderProgress(
       data: {
         orderId,
         updatedById: actor.id,
-        status: input.status,
-        progressPct: input.progressPct,
-        note: input.note,
-        proofUrls: (input.proofUrls ?? undefined) as
-          | Prisma.InputJsonValue
-          | undefined,
+        ...(input.status !== undefined && { status: input.status }),
+        ...(input.progressPct !== undefined && {
+          progressPct: input.progressPct,
+        }),
+        ...(input.note !== undefined && { note: input.note ?? null }),
+        ...(input.proofUrls !== undefined && {
+          proofUrls: input.proofUrls as Prisma.InputJsonValue,
+        }),
       },
     }),
+
     prisma.order.update({
       where: { id: orderId },
       data: {
-        status: input.status ?? undefined,
-        progressPct: input.progressPct ?? undefined,
+        ...(input.status !== undefined && { status: input.status }),
+        ...(input.progressPct !== undefined && {
+          progressPct: input.progressPct,
+        }),
       },
     }),
   ]);
