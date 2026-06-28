@@ -103,6 +103,6 @@ export type ApiResponse<T> = ApiSuccess<T> | ApiError;
 import { Request } from "express";
 import { ConversationType, MessageSenderType, Role } from "@prisma/client";
 
-export interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Omit<Request, "user"> {
   user: JwtPayload;
 }

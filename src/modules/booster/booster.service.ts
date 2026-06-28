@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import { Role } from "@prisma/client";
-import { prisma } from "../../lib/prisma";
 import { logger } from "../../utils/logger";
 import { ValidationError, NotFoundError } from "../../utils/errors";
 import {
@@ -8,6 +7,7 @@ import {
   ListBoostersQuery,
   UpdateBoosterRequest,
 } from "./booster.requests.schema";
+import { prisma } from "../../libs/prisma";
 
 const log = logger.scope("BoosterService");
 const SALT_ROUNDS = 10;
@@ -21,7 +21,10 @@ const SALT_ROUNDS = 10;
  */
 
 export async function createBooster(input: CreateBoosterRequest) {
-  log.info("createBooster:start", { email: input.email, username: input.username });
+  log.info("createBooster:start", {
+    email: input.email,
+    username: input.username,
+  });
 
   const existing = await prisma.user.findFirst({
     where: { OR: [{ email: input.email }, { username: input.username }] },
@@ -38,7 +41,7 @@ export async function createBooster(input: CreateBoosterRequest) {
       username: input.username,
       passwordHash,
       role: Role.BOOSTER,
-      displayName: input.displayName,
+      displayName: input.displayName ?? null,
     },
     select: {
       id: true,
@@ -79,7 +82,10 @@ export async function listBoosters(query: ListBoostersQuery) {
   return boosters;
 }
 
-export async function updateBooster(boosterId: string, input: UpdateBoosterRequest) {
+export async function updateBooster(
+  boosterId: string,
+  input: UpdateBoosterRequest,
+) {
   const booster = await prisma.user.findUnique({ where: { id: boosterId } });
   if (!booster || booster.role !== Role.BOOSTER) {
     throw new NotFoundError("Booster không tồn tại");
@@ -88,8 +94,10 @@ export async function updateBooster(boosterId: string, input: UpdateBoosterReque
   const updated = await prisma.user.update({
     where: { id: boosterId },
     data: {
-      displayName: input.displayName ?? undefined,
-      isActive: input.isActive ?? undefined,
+      ...(input.displayName !== undefined && {
+        displayName: input.displayName,
+      }),
+      ...(input.isActive !== undefined && { isActive: input.isActive }),
     },
     select: {
       id: true,

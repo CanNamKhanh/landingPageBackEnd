@@ -11,7 +11,10 @@ import { logger } from "../../utils/logger";
 
 const log = logger.scope("OrderController");
 
-export async function createOrderHandler(req: Request, res: Response): Promise<void> {
+export async function createOrderHandler(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const body = createOrderRequestSchema.parse(req.body);
   // user có thể chưa login (khách vãng lai book kèo) -> userId nullable
   const userId = req.user?.id ?? null;
@@ -21,34 +24,61 @@ export async function createOrderHandler(req: Request, res: Response): Promise<v
   res.status(201).json({ data: order });
 }
 
-export async function confirmPaymentHandler(req: Request, res: Response): Promise<void> {
+export async function confirmPaymentHandler(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const body = confirmPaymentRequestSchema.parse(req.body);
-  const order = await orderService.confirmPayment(req.params.orderId, body.paymentRef);
+  const order = await orderService.confirmPayment(
+    req.params.orderId as string,
+    body.paymentRef,
+  );
   res.status(200).json({ data: order });
 }
 
-export async function listOrdersHandler(req: Request, res: Response): Promise<void> {
+export async function listOrdersHandler(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const query = listOrdersQuerySchema.parse(req.query);
   const orders = await orderService.listOrders(req.user!, query);
   res.status(200).json({ data: orders });
 }
 
-export async function getOrderHandler(req: Request, res: Response): Promise<void> {
-  const order = await orderService.getOrderById(req.params.orderId, req.user!);
+export async function getOrderHandler(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const order = await orderService.getOrderById(
+    req.params.orderId as string,
+    req.user!,
+  );
   res.status(200).json({ data: order });
 }
 
 /** Booster tự claim kèo */
-export async function claimOrderHandler(req: Request, res: Response): Promise<void> {
-  const order = await orderService.claimOrder(req.params.orderId, req.user!.id);
+export async function claimOrderHandler(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const order = await orderService.claimOrder(
+    req.params.orderId as string,
+    req.user!.id,
+  );
   log.info("order claimed", { orderId: order.id, boosterId: req.user!.id });
   res.status(200).json({ data: order });
 }
 
 /** Admin chỉ định booster qua dropdown */
-export async function assignBoosterHandler(req: Request, res: Response): Promise<void> {
+export async function assignBoosterHandler(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const body = assignBoosterRequestSchema.parse(req.body);
-  const order = await orderService.assignBooster(req.params.orderId, body.boosterId);
+  const order = await orderService.assignBooster(
+    req.params.orderId as string,
+    body.boosterId,
+  );
   log.info("booster assigned by admin", {
     orderId: order.id,
     boosterId: body.boosterId,
@@ -57,8 +87,15 @@ export async function assignBoosterHandler(req: Request, res: Response): Promise
   res.status(200).json({ data: order });
 }
 
-export async function updateOrderProgressHandler(req: Request, res: Response): Promise<void> {
+export async function updateOrderProgressHandler(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const body = updateOrderProgressSchema.parse(req.body);
-  const order = await orderService.updateOrderProgress(req.params.orderId, req.user!, body);
+  const order = await orderService.updateOrderProgress(
+    req.params.orderId as string,
+    req.user!,
+    body,
+  );
   res.status(200).json({ data: order });
 }

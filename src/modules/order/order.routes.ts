@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { Role } from "@prisma/client";
-import { authenticate, requireRole } from "../../middleware/auth.middleware";
 import { asyncHandler } from "../../utils/asyncHandler";
 import * as controller from "./order.controller";
+import { authenticate, requireRole } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
