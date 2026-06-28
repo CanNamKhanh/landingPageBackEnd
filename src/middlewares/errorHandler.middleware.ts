@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from "express";
+import { ZodError } from "zod";
+import { Prisma } from "@prisma/client";
 
 // ─── Custom error class ────────────────────────────────────────────────────────
 
@@ -44,11 +46,46 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction,
 ): void => {
+  // Zod validation error (body/query parse sai shape) — thêm mới, check trước AppError
+  if (error instanceof ZodError) {
+    res.status(400).json({
+      success: false,
+      message: "Validation failed",
+      issues: error.issues,
+    });
+    return;
+  }
+
   // Known AppError (thrown explicitly)
   if (error instanceof AppError) {
     res.status(error.statusCode).json({
       success: false,
       message: error.message,
+    });
+    return;
+  }
+
+  // Prisma known errors (unique constraint, record not found...) — thêm mới
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === "P2002") {
+      res.status(409).json({
+        success: false,
+        message: "Resource already exists",
+      });
+      return;
+    }
+    if (error.code === "P2025") {
+      res.status(404).json({
+        success: false,
+        message: "Record not found",
+      });
+      return;
+    }
+
+    console.error("[Prisma Error]", error.code, error.meta);
+    res.status(500).json({
+      success: false,
+      message: "Database error",
     });
     return;
   }

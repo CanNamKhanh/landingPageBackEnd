@@ -1,0 +1,135 @@
+enum GameCode {
+  VALORANT
+  LOL
+  TFT
+  ARENA_BREAKOUT_INFINITE
+  DELTA_FORCE
+}
+
+enum ServiceType {
+  RANK_BOOSTING
+  PLACEMENT_MATCHES
+  NET_WINS
+  KOENS_FARMING
+  ACCOUNT_LEVELING
+  RAID_BOOST
+  TITANIUM_CASE
+  TEKNIQ_ALLOY_FARMING
+  HAZARD_OPERATION
+  SEASON_MISSION
+}
+
+enum OrderStatus {
+  PENDING // vừa submit, chưa thanh toán/confirm
+  CONFIRMED // đã xác nhận, chưa gán booster
+  IN_PROGRESS // booster đang làm
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+model Game {
+  id       String   @id @default(cuid())
+  code     GameCode @unique
+  name     String
+  iconUrl  String?  @map("icon_url")
+  isActive Boolean  @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  services GameService[]
+  orders   Order[]
+
+  @@map("games")
+}
+
+// Catalog 1 dòng = 1 tab service trong UI (Rank Boosting, Raid Boost, ...)
+// `config` lưu options để render form + validate (server list, rank list, map list, base price, ...)
+model GameService {
+  id       String      @id @default(cuid())
+  gameId   String      @map("game_id")
+  game     Game        @relation(fields: [gameId], references: [id])
+  type     ServiceType
+  name     String
+  config   Json
+  isActive Boolean     @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  orders Order[]
+
+  @@unique([gameId, type])
+  @@map("game_services")
+}
+
+model Order {
+  id   String @id @default(cuid())
+  code String @unique // ví dụ: VAL-RB-00001
+
+  gameId    String      @map("game_id")
+  game      Game        @relation(fields: [gameId], references: [id])
+  serviceId String      @map("service_id")
+  service   GameService @relation(fields: [serviceId], references: [id])
+
+  // shape thay đổi theo serviceType, validate bằng Zod ở tầng service trước khi lưu
+  // RANK_BOOSTING:      { server?, currentRank, desiredRank }
+  // PLACEMENT_MATCHES:  { server, numberOfMatches, previousSeasonRank }
+  // NET_WINS:           { server, numberOfMatches, currentRank }
+  // RAID_BOOST/HAZARD:  { map, difficulty, quantity }
+  // ACCOUNT_LEVELING:   { currentLevel, targetLevel } hoặc { levelRanges: string[] }
+  // TITANIUM_CASE:      { missionsToComplete }
+  // KOENS_FARMING/TEKNIQ_ALLOY_FARMING: { amount }
+  // SEASON_MISSION:     {} (flat price)
+  details Json
+
+  paymentRef String? @map("payment_ref")
+
+  totalPrice Decimal @map("total_price") @db.Decimal(10, 2)
+  currency   String  @default("USD")
+
+  customerName  String @map("customer_name")
+  customerEmail String @map("customer_email")
+
+  userId String? @map("user_id")
+  user   User?   @relation("OrderOwner", fields: [userId], references: [id])
+
+  boosterId String? @map("booster_id")
+  booster   User?   @relation("OrderBooster", fields: [boosterId], references: [id])
+
+  status      OrderStatus @default(PENDING)
+  progressPct Int         @default(0) @map("progress_pct")
+
+  // link tới Conversation chat hệ thống bot->human đã build
+  conversationId String?       @unique @map("conversation_id")
+  conversation   Conversation? @relation(fields: [conversationId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  progressLogs OrderProgressLog[]
+
+  @@index([status])
+  @@index([boosterId])
+  @@map("orders")
+}
+
+// Lịch sử cập nhật tiến độ - booster/admin ghi log mỗi lần update
+model OrderProgressLog {
+  id      String @id @default(cuid())
+  orderId String @map("order_id")
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  updatedById String @map("updated_by_id")
+  updatedBy   User   @relation(fields: [updatedById], references: [id])
+
+  status      OrderStatus? // nếu có đổi status thì ghi vào đây
+  progressPct Int?         @map("progress_pct")
+  note        String?
+  proofUrls   Json?        @map("proof_urls") // screenshot/proof
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("order_progress_logs")
+}

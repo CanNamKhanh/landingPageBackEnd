@@ -1,19 +1,26 @@
 enum Role {
-    USER
-    ADMIN
+  USER
+  ADMIN
+  BOOSTER
 }
 
 model User {
-    id           String   @id @default(cuid())
-    email        String   @unique
-    username     String   @unique
-    passwordHash String   @map("password_hash")
-    role         Role     @default(USER)
-    createdAt    DateTime @default(now()) @map("created_at")
-    updatedAt    DateTime @updatedAt @map("updated_at")
+  id           String   @id @default(cuid())
+  email        String   @unique
+  username     String   @unique
+  displayName  String?  @map("display_name")
+  isActive     Boolean  @default(true) @map("is_active")
+  passwordHash String   @map("password_hash")
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-    conversations Conversation[]
-    messages      Message[]
+  conversations Conversation[]
+  messages      Message[]
 
-    @@map("users")
+  ownedOrders   Order[]            @relation("OrderOwner")
+  boostedOrders Order[]            @relation("OrderBooster")
+  progressLogs  OrderProgressLog[]
+
+  @@map("users")
 }
