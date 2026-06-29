@@ -83,7 +83,8 @@ export async function createOrder(
     service.type as ServiceTypeKey,
     input.details,
   );
-  const totalPrice = calculatePrice(service.config, validatedDetails);
+  const totalPrice =
+    input.totalPrice ?? calculatePrice(service.config, validatedDetails);
   const code = await generateOrderCode(service.game.code, service.type);
 
   const order = await prisma.order.create({

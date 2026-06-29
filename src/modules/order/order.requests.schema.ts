@@ -6,6 +6,7 @@ export const createOrderRequestSchema = z.object({
   details: z.record(z.string(), z.unknown()), // validate chi tiết ở orderDetails.schema.ts theo serviceType
   customerName: z.string().trim().min(1).max(100),
   customerEmail: z.string().trim().email(),
+  totalPrice: z.number().min(0).optional(),
 });
 export type CreateOrderRequest = z.infer<typeof createOrderRequestSchema>;
 
@@ -30,9 +31,11 @@ export const updateOrderProgressSchema = z
       data.progressPct !== undefined ||
       data.note !== undefined ||
       data.proofUrls !== undefined,
-    { message: "Phải có ít nhất 1 field để update" }
+    { message: "Phải có ít nhất 1 field để update" },
   );
-export type UpdateOrderProgressInput = z.infer<typeof updateOrderProgressSchema>;
+export type UpdateOrderProgressInput = z.infer<
+  typeof updateOrderProgressSchema
+>;
 
 /** Admin chỉ định booster cho 1 kèo (dropdown ở trang admin) */
 export const assignBoosterRequestSchema = z.object({
@@ -44,7 +47,14 @@ export type AssignBoosterRequest = z.infer<typeof assignBoosterRequestSchema>;
 export const listOrdersQuerySchema = z.object({
   scope: z.enum(["all", "mine", "claimable", "assignedToMe"]).default("all"),
   status: z
-    .enum(["PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "REFUNDED"])
+    .enum([
+      "PENDING",
+      "CONFIRMED",
+      "IN_PROGRESS",
+      "COMPLETED",
+      "CANCELLED",
+      "REFUNDED",
+    ])
     .optional(),
   gameId: z.string().cuid().optional(),
   cursor: z.string().cuid().optional(),
