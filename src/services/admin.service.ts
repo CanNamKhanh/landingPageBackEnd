@@ -168,6 +168,8 @@ export const adminService = {
       select: {
         id: true,
         type: true,
+        userId: true,
+        user: { select: { id: true, username: true } },
         messages: {
           orderBy: { createdAt: "asc" },
           select: messageSelectValidator,
@@ -179,6 +181,8 @@ export const adminService = {
       (conv) => ({
         id: conv.id,
         type: conv.type,
+        userId: conv.userId,
+        user: conv.user,
         messages: conv.messages.map(mapMessage),
       }),
     );
@@ -205,6 +209,8 @@ export const adminService = {
           select: {
             id: true,
             type: true,
+            userId: true,
+            user: { select: { id: true, username: true } },
             messages: {
               orderBy: { createdAt: "asc" },
               select: messageSelectValidator,
@@ -226,6 +232,8 @@ export const adminService = {
       conversations: user.conversations.map((conv) => ({
         id: conv.id,
         type: conv.type,
+        userId: conv.userId,
+        user: conv.user,
         messages: conv.messages.map(mapMessage),
       })),
     }));
