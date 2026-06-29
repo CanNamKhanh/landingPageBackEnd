@@ -12,10 +12,13 @@ import boosterRoutes from "./modules/booster/booster.routes";
 import conversationRouter from "./routes/conversation.route";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { connectRedis } from "./libs/redis";
+import { initSocket } from "./libs/socket";
 
 const PORT: number = Number(process.env.PORT) || 4000;
 const app = express();
 const httpServer = http.createServer(app);
+
+initSocket(httpServer);
 
 const RAW_CORS_ORIGIN = process.env.CORS_ORIGIN ?? "";
 //bug logs
@@ -26,8 +29,8 @@ const ALLOWED_ORIGINS = RAW_CORS_ORIGIN.split(",")
   .map((origin) => origin.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
-console.log("ALLOWED_ORIGINS parsed:", ALLOWED_ORIGINS);
-console.log("==================");
+// console.log("ALLOWED_ORIGINS parsed:", ALLOWED_ORIGINS);
+// console.log("==================");
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
