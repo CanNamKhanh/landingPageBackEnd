@@ -8,7 +8,7 @@ import authRouter from "./routes/auth.route";
 import adminRouter from "./routes/admin.route";
 import orderRoutes from "./modules/order/order.routes";
 import boosterRoutes from "./modules/booster/booster.routes";
-import chatRoutes from "./modules/chat/chat.routes";
+// import chatRoutes from "./modules/chat/chat.routes";
 import conversationRouter from "./routes/conversation.route";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { connectRedis } from "./libs/redis";
@@ -75,9 +75,9 @@ app.use("/paypal", paypalRouter);
 app.use("/auth", authRouter);
 app.use("/conversations", conversationRouter);
 app.use("/admin", adminRouter);
- app.use("/order", orderRoutes);
-  app.use("/booster", boosterRoutes);
-  app.use("/admin", chatRoutes);
+app.use("/orders", orderRoutes);
+app.use("/boosters", boosterRoutes);
+// app.use("/admin", chatRoutes);
 
 app.use(errorHandler);
 

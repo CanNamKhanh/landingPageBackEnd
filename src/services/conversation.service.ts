@@ -36,6 +36,8 @@ type PrismaConversation = Prisma.ConversationGetPayload<{
   select: {
     id: true;
     type: true;
+    userId: true;
+    user: { select: { id: true; username: true } };
     messages: {
       select: typeof messageSelectValidator;
     };
@@ -59,6 +61,8 @@ const mapConversation = (
 ): ConversationWithMessages => ({
   id: raw.id,
   type: raw.type,
+  userId: raw.userId,
+  user: raw.user,
   messages: raw.messages.map(mapMessage),
 });
 
@@ -96,6 +100,8 @@ export const conversationService = {
       select: {
         id: true,
         type: true,
+        userId: true,
+        user: { select: { id: true, username: true } },
         messages: {
           orderBy: { createdAt: "desc" },
           take: 1,
@@ -250,6 +256,8 @@ export const conversationService = {
       select: {
         id: true,
         type: true,
+        userId: true, // 👈 thêm dòng này
+        user: { select: { id: true, username: true } }, // 👈 thêm dòng này
         messages: {
           orderBy: { createdAt: "desc" },
           take: 1,
@@ -258,7 +266,6 @@ export const conversationService = {
       },
       orderBy: { updatedAt: "desc" },
     });
-
     return conversations.map(mapConversation);
   },
 

@@ -32,6 +32,8 @@ export interface MessageResponse {
 export interface ConversationWithMessages {
   id: string;
   type: ConversationType;
+  userId: string; // 👈 thêm
+  user: { id: string; username: string }; // 👈 thêm
   messages: MessageResponse[];
 }
 
