@@ -1,7 +1,6 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
 import type { Server as HttpServer } from "http";
 import jwt from "jsonwebtoken";
-import { ConversationType } from "@prisma/client";
 import { prisma } from "./prisma";
 import { conversationService } from "../services/conversation.service";
 
@@ -42,6 +41,8 @@ export function initSocket(httpServer: HttpServer): SocketIOServer {
       credentials: true,
     },
     // Ping mỗi 25s, timeout 60s — tránh disconnect trên môi trường cloud
+    transports: ["polling", "websocket"],
+    allowEIO3: true,
     pingInterval: 25_000,
     pingTimeout: 60_000,
   });
